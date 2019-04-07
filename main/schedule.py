@@ -3,10 +3,11 @@
 # main.schedule
 #######################
 
-import json
+import demjson
 from common.dbInfo import mysql_exec
 
 def get_query_result(request):
+    infos={"status":False,"data":[],"message":""}
     if request.method=="POST":
         """
         jsons={"host":"host",
@@ -16,11 +17,14 @@ def get_query_result(request):
               "database":"database",
               "sql":"sql",}
         """
-        recive=json.loads(request.body)
-        if "sql" in recive.keys() and len(recive["sql"])>0:
-            infos=mysql_exec(recive)
-        else:
-            infos={"status":False,"data":[],"message":"SQL is required and cannot be empty!"}
+        try:
+            recive=demjson.decode(request.body)
+            if "sql" in recive.keys() and len(recive["sql"])>0:
+                infos=mysql_exec(recive)
+            else:
+                infos["message"]="SQL is required and cannot be empty!"
+        except Exception as e:
+            infos["message"]=str(e)
     else:
-        infos={"status":False,"data":[],"message":"Please use POST method!"}
-    return json.dumps(infos)
+        infos["message"]="Please use POST method!"
+    return demjson.encode(infos)

@@ -13,5 +13,5 @@ def health(request):
 
 # /
 def get_query_json(request):    
-    infos=get_query_result(request)
-    return HttpResponse(infos) 
+    results=get_query_result(request)
+    return HttpResponse(results) 

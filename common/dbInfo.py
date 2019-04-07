@@ -3,7 +3,6 @@
 # common.dbInfo
 #######################
 
-import json
 import pymysql
 
 
@@ -29,10 +28,10 @@ def mysql_exec(params):
     elif sql.startswith("revoke"):    
         return exec_revoke(params,"DCL")
     infos["message"]="only support [select,insert,update,delete,create,drop,alter,grant,revoke]!"
-    return json.dumps(infos)
+    return infos
 
 
-def __conn(params,datagase=None,return_type=pymysql.cursors.DictCursor): 
+def __conn(params,datagase=None): 
     connInfo={"status":False,"conn":None,"message":""}
     if "database" in params.keys():
         database=params["database"]
@@ -45,7 +44,7 @@ def __conn(params,datagase=None,return_type=pymysql.cursors.DictCursor):
         connInfo["status"]=True
         connInfo["conn"]=conn
     except Exception as e:
-        infos["message"]=str(e)
+        connInfo["message"]=str(e)
     return connInfo
 
 def exec_select(params,type,return_type=pymysql.cursors.DictCursor):
@@ -55,7 +54,7 @@ def exec_select(params,type,return_type=pymysql.cursors.DictCursor):
         conn=connInfo["conn"]
     else:
         infos["message"]=connInfo["message"]
-        return json.dumps(infos)
+        return infos
     
     with conn.cursor(cursor=return_type) as cursor:
         try:
@@ -63,6 +62,7 @@ def exec_select(params,type,return_type=pymysql.cursors.DictCursor):
             infos["data"]=cursor.fetchall()
             infos["status"]=True
             infos["type"]=type
+            infos["exec"]="successful"
         except pymysql.err.ProgrammingError as e:
             infos["message"]="Syntax error"
         except pymysql.err.InternalError as e:
@@ -72,7 +72,7 @@ def exec_select(params,type,return_type=pymysql.cursors.DictCursor):
     try:
         conn.close()
     except Execption as e:
-        pass
+        infos["conn"]="Aleardy close connection!"
     return infos
 
 def __exec(params,type):
@@ -82,13 +82,15 @@ def __exec(params,type):
         conn=connInfo["conn"] 
     else:
         infos["message"]=connInfo["message"]
-        return json.dumps(infos)
+        return infos
     conn=connInfo["conn"]
     with conn.cursor() as cursor:
         try:
             cursor.execute(params["sql"])
+            conn.commit()
             infos["status"]=True
             infos["type"]=type
+            infos["exec"]="successful"
         except pymysql.err.ProgrammingError as e:
             infos["message"]="Syntax error"
         except pymysql.err.InternalError as e:
