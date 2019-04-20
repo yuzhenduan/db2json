@@ -59,6 +59,7 @@ def exec_select(params,type,return_type=pymysql.cursors.DictCursor):
     with conn.cursor(cursor=return_type) as cursor:
         try:
             cursor.execute(params["sql"])
+            conn.commit()
             infos["data"]=cursor.fetchall()
             infos["status"]=True
             infos["type"]=type
