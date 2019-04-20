@@ -70,10 +70,8 @@ def exec_select(params,type,return_type=pymysql.cursors.DictCursor):
             infos["message"]="Unknown column"
         except Exception as e:
             infos["message"]=str(e)
-    try:
-        conn.close()
-    except Execption as e:
-        infos["conn"]="Aleardy close connection!"
+        finally:
+            conn.close()
     return infos
 
 def __exec(params,type):
@@ -98,10 +96,8 @@ def __exec(params,type):
             infos["message"]="Unknown column"
         except Exception as e:
             infos["message"]=str(e)
-    try:
-        conn.close()
-    except Exception as e:
-        pass
+        finally:
+            conn.close()
     return infos
 
 def exec_insert(params,type):
