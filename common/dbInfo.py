@@ -31,7 +31,7 @@ def mysql_exec(params):
     return infos
 
 
-def __conn(params,datagase=None): 
+def __conn(params,database=None): 
     connInfo={"status":False,"conn":None,"message":""}
     if "database" in params.keys():
         database=params["database"]
